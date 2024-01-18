@@ -1,0 +1,46 @@
+--Post Link - https://www.linkedin.com/posts/ankitbansal6_sql-analytics-activity-7144530959424438273-1zQT?utm_source=share&utm_medium=member_desktop
+
+--Question - 
+You have 2 input tables source and target and you need to derive output table as shown below.
+
+Here are the scripts :
+create table source(id int, name varchar(5))
+create table target(id int, name varchar(5))
+insert into source values(1,'A'),(2,'B'),(3,'C'),(4,'D')
+insert into target values(1,'A'),(2,'B'),(4,'X'),(5,'F');
+
+Table Source            
+id	name
+1	A
+2	B
+3	C
+4	D
+
+Table Target
+id	name
+1	A
+2	B
+4	X
+5	F
+
+Expected Output
+Id	Comment
+3	New in Source
+4	Mismatch
+5	New in target
+
+--Solution/ My approach to meet the expected output
+with comment as
+(select
+coalesce (s.id,t.id) as Id,
+case 
+when s.id = t.id and s.name = t.name then 'Match'
+when s.id = t.id and s.name <> t.name then 'Mismatch'
+when t.id is null then 'New in Source'
+when s.id is null then 'New in target'
+end as Comment
+from source S
+full outer join target T
+on s.id = t.id)
+
+select * from comment where comment <> 'match'
